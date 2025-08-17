@@ -1,0 +1,28 @@
+services:
+  mcpserver-mcp-image:
+    image: local/mcpserver:latest
+    build:
+      context: ./mcp-gateway/my-mcp-server
+    environment:
+      - FAKE_ENV # without any env in list there is a GO lang error when image is used
+    restart: "no"
+    command: ["echo", "Image built successfully"]
+
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mcp-gateway/docker-mcp.yaml:/root/.docker/mcp/docker-mcp.yaml:ro
+      - ./mcp-gateway/secrets.env:/root/.docker/mcp/secrets.env:ro
+    command:
+      - --verbose
+      - --port=8080
+      - --transport=sse
+      - --catalog=/root/.docker/mcp/docker-mcp.yaml
+      - --secrets=/root/.docker/mcp/secrets.env
+      #      - --block-secrets=false # <<< allow passing secrets but works without it
+      - --servers=mcpserver
+    depends_on:
+      - mcpserver-mcp-image

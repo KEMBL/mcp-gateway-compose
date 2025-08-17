@@ -1,0 +1,15 @@
+# file format https://github.com/docker/mcp-gateway/blob/main/docs/catalog.md
+
+version: 2
+name: local
+displayName: Local catalog
+
+registry:
+  mcpserver:
+    title: Test (local)
+    description: Local MCP server (stdio)
+    image: local/mcpserver:latest
+    transport: stdio
+    secrets:
+      - name: API_KEY
+        env: API_KEY
